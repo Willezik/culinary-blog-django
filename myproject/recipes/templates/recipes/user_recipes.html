@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Рецепты пользователя {{ user.username }}</h1>
+
+{% if request.user == user %}
+<div class="mb-4">
+    <a href="{% url 'recipe_create' %}" class="btn btn-primary">Добавить новый рецепт</a>
+</div>
+{% endif %}
+
+<div class="row">
+    {% for recipe in recipes %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="card-img-top recipe-image" alt="{{ recipe.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ recipe.title }}</h5>
+                <p class="card-text">{{ recipe.description|truncatechars:100 }}</p>
+                <p class="text-muted">Категория: {{ recipe.get_category_display }}</p>
+                <p class="text-muted">{{ recipe.created_at|date:"d.m.Y" }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-primary btn-sm">Подробнее</a>
+                {% if request.user == recipe.author %}
+                    <a href="{% url 'recipe_update' recipe.pk %}" class="btn btn-warning btn-sm">Изменить</a>
+                    <a href="{% url 'recipe_delete' recipe.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            {% if request.user == user %}
+                У вас пока нет рецептов. <a href="{% url 'recipe_create' %}">Добавить первый рецепт</a>
+            {% else %}
+                У этого пользователя пока нет рецептов.
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

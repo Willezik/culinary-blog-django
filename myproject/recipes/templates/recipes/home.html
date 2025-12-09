@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Кулинарные рецепты</h1>
+        <p class="text-muted">Делитесь своими любимыми рецептами с сообществом</p>
+    </div>
+    <div class="col-md-4">
+        <div class="d-flex justify-content-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    Категории
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'home' %}">Все рецепты</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="?category=breakfast">Завтрак</a></li>
+                    <li><a class="dropdown-item" href="?category=lunch">Обед</a></li>
+                    <li><a class="dropdown-item" href="?category=dinner">Ужин</a></li>
+                    <li><a class="dropdown-item" href="?category=dessert">Десерт</a></li>
+                    <li><a class="dropdown-item" href="?category=drink">Напитки</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for recipe in recipes %}
+    <div class="col">
+        <div class="card recipe-card h-100">
+            {% if recipe.image %}
+            <img src="{{ recipe.image.url }}" class="card-img-top recipe-image" alt="{{ recipe.title }}">
+            {% else %}
+            <div class="card-img-top recipe-image bg-light d-flex align-items-center justify-content-center">
+                <span class="text-muted">Нет изображения</span>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <span class="badge bg-danger category-badge">{{ recipe.get_category_display }}</span>
+                <h5 class="card-title">{{ recipe.title }}</h5>
+                <p class="card-text text-muted">{{ recipe.description|truncatechars:100 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <a href="{% url 'user_recipes' recipe.author.username %}" class="text-decoration-none">
+                            {{ recipe.author.username }}
+                        </a>
+                    </small>
+                    <small class="text-muted">{{ recipe.created_at|date:"d.m.Y" }}</small>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{% url 'recipe_detail' recipe.pk %}" class="btn btn-outline-danger btn-sm">Читать рецепт</a>
+                <span class="float-end">
+                    <i class="fas fa-clock"></i> {{ recipe.cooking_time }} мин
+                </span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            Пока нет рецептов. Будьте первым, кто добавит рецепт!
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">Первая</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">←</a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">→</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

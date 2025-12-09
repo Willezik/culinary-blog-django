@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>{{ recipe.title }}</h1>
+        <p class="text-muted">Автор: {{ recipe.author.username }} | {{ recipe.created_at|date:"d.m.Y H:i" }}</p>
+        
+        {% if recipe.image %}
+            <img src="{{ recipe.image.url }}" class="img-fluid mb-4" alt="{{ recipe.title }}">
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Описание</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ recipe.description }}</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Ингредиенты</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ recipe.ingredients|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Время приготовления</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ recipe.cooking_time }} минут</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Шаги приготовления</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ recipe.cooking_steps|linebreaks }}</p>
+            </div>
+        </div>
+        
+        <a href="{% url 'home' %}" class="btn btn-secondary">Назад к списку</a>
+        {% if user == recipe.author %}
+            <a href="{% url 'recipe_update' recipe.pk %}" class="btn btn-warning">Редактировать</a>
+            <a href="{% url 'recipe_delete' recipe.pk %}" class="btn btn-danger">Удалить</a>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Информация о рецепте</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Категория:</strong> {{ recipe.get_category_display }}</p>
+                <p><strong>Создан:</strong> {{ recipe.created_at|date:"d.m.Y" }}</p>
+                <p><strong>Обновлен:</strong> {{ recipe.updated_at|date:"d.m.Y" }}</p>
+                <p><strong>Автор:</strong> 
+                    <a href="{% url 'user_recipes' recipe.author.username %}">
+                        {{ recipe.author.username }}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
